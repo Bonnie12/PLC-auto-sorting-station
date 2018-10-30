@@ -1,49 +1,63 @@
 //this is a reject function
+unsigned long time_state = 0;
+unsigned long period = 1000; // 1 second
 
-const int capacitive = 3; //input 3
+const int capacitive = 4; //input 3
 const int inductive = 8; //input 8
 const int ir = 5; //input 5
-int mode = 0; //for switch function
+const int checker1 = 9; //solenoid checker
+
+const int output1 = 1 ;// output 1
+const int output2 = 6; // 2 & 3 are interrupt pins
+
+const int push = 7; // connect to relay, use to on OP3
+
 boolean reject = HIGH; //initial rejection state
+
+const int interruptPin1 = 2;
+const int interruptPin2 = 3;
+
 int assembled = 0;//counter
 int rejected = 0;//counter
-const int output = 1 ;// output 3
 
 void setup() {
  pinMode(capacitive, INPUT);
  pinMode(inductive, INPUT);
  pinMode(ir , INPUT);
- pinMode(output, reject); 
+ pinMode(output1, OUTPUT);
+ pinMode(output2, OUTPUT);
+ attachInterrupt(digitalPinToInterrupt(interruptPin1),assembledfunction ,RISING);
+ attachInterrupt(digitalPinToInterrupt(interruptPin2),pushfunction ,RISING);
  Serial.begin(9600);
 }
 
-void loop() {
+void loop() { 
  if ( digitalRead(capacitive)== LOW && digitalRead(inductive) == HIGH )//metal and plastic are stacked
  {
-  delay(100);
-  mode = 1 ;
+  digitalWrite(output1,HIGH);
+  assembled ++ ;
   } 
- if ( digitalRead(ir) == HIGH)// when the object passed by input5 
+ if ( digitalRead(ir) == HIGH)// when the object passed by input5, i let it connect to digital pin instead of interupt pin
  {
-  delay(100);
-  mode = 2 ;
+  digitalWrite(output2,HIGH);
  }
-
-Serial.println("current mode is = " + mode);
-
-switch(mode){ //switch function
- case 1:
-  reject = !reject; // toggle rejct from HIGH to LOW
-  assembled ++;
-  Serial.println("rejection state = " + reject);
-  break;
- case 2:
-  digitalWrite(output,reject); // solenoid's state
-  delay(100);
-  Serial.print("finished");
-  break;
- default:
-   
+ 
+ else{
   Serial.println("do nothing");
   }
 }
+
+void assembledfunction(){
+  reject= !reject;
+  
+ } 
+
+void pushfunction (){
+unsigned long time_now = millis(); 
+  if (reject == HIGH && digitalRead(checker1)== LOW && millis()<= time_now + period ){
+  reject = !reject;  
+     }
+  }
+ 
+
+
