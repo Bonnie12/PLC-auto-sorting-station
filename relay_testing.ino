@@ -2,13 +2,14 @@
 int relayPin = 8;
 void setup() {
  pinMode(relayPin,OUTPUT);
- digitalWrite(relayPin, HIGH);
+ digitalWrite(relayPin, LOW);
   
 
 }
 
 void loop() {
-  digitalWrite(relayPin,LOW);
-  delay (500);
-
+ // delay (1000);
+  digitalWrite(relayPin,HIGH);
+ // delay (1000);
+  //digitalWrite(relayPin,LOW);
 }
